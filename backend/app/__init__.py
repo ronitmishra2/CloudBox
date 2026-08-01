@@ -19,10 +19,14 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    # Import here to avoid circular import
+    from app import models
+    from app.services import minio_service
+
     from app.routes.auth import auth_bp
+    from app.routes.files import files_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    app.register_blueprint(files_bp, url_prefix="/api/files")
 
     @app.route("/")
     def home():
