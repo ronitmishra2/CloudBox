@@ -5,6 +5,7 @@ from flask_jwt_extended import JWTManager
 
 from app.config import Config
 
+
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
@@ -24,9 +25,11 @@ def create_app():
 
     from app.routes.auth import auth_bp
     from app.routes.files import files_bp
+    from app.routes.share import share_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(files_bp, url_prefix="/api/files")
+    app.register_blueprint(share_bp, url_prefix="/api/share")
 
     @app.route("/")
     def home():

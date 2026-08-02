@@ -1,5 +1,6 @@
 from minio import Minio
 from app.config import Config
+from datetime import timedelta
 
 client = Minio(
     Config.MINIO_ENDPOINT,
@@ -17,3 +18,13 @@ def create_bucket():
 
 
 create_bucket()
+
+def generate_download_url(object_name):
+    return client.presigned_get_object(
+        bucket_name,
+        object_name,
+        expires=timedelta(minutes=15)
+    )
+
+def delete_object(object_name):
+    client.remove_object(bucket_name, object_name)
