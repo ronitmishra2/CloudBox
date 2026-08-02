@@ -1,106 +1,147 @@
 # ☁️ CloudBox – Self-Hosted Cloud Storage Platform
 
-CloudBox is a full-stack, self-hosted cloud storage platform inspired by Google Drive and Dropbox. It enables users to securely upload, organize, and share files while demonstrating modern backend development, cloud storage concepts, containerization, and DevOps practices.
+A production-inspired cloud storage platform built with **Flask**, **PostgreSQL**, **MinIO**, and **Docker**. CloudBox provides secure authentication, object storage, file management, and shareable links through a RESTful API.
 
-> **Project Status:** 🚧 In Development
+> 🚧 Currently under active development. Backend is feature-complete and React frontend is the next milestone.
 
 ---
 
-## 📌 Features (Planned)
+## ✨ Features
 
-### 👤 User Management
+### 🔐 Authentication
 - User Registration
-- Secure Login
+- User Login
 - JWT Authentication
+- Protected API Routes
 - Password Hashing
-- User Profile Management
 
-### 📂 File Management
+### 📁 File Management
 - Upload Files
-- Download Files
+- Download Files using MinIO Pre-Signed URLs
 - Delete Files
 - Rename Files
-- Folder Support
-- Move Files
-- File Versioning
+- List User Files
+- Search Files
+
+### ☁️ Object Storage
+- MinIO Integration
+- Automatic Bucket Creation
+- UUID-based Object Naming
+- Metadata Storage in PostgreSQL
 
 ### 🔗 File Sharing
-- Share Files via Unique Links
-- Password Protected Links
-- Link Expiration
-- Public & Private Sharing
-
-### 🔍 Search
-- Search by File Name
-- Filter by File Type
-- Sort by Date and Size
+- Generate Shareable Links
+- Public File Access
+- Secure Download Redirection
 
 ### 📊 Dashboard
-- Storage Usage
-- Recent Uploads
-- File Statistics
-- Activity History
+- Total Files
+- Storage Used
+- PDF Count
+- Image Count
+- Text File Count
 
-### ⚙️ Admin Panel
-- Manage Users
-- Monitor Storage Usage
-- Manage Storage Quotas
+### 🐳 DevOps
+- Docker Compose
+- PostgreSQL Container
+- MinIO Container
+- Environment Variables (.env)
+- Flask Migrations
 
 ---
 
-# 🛠️ Tech Stack
+# 🛠 Tech Stack
 
-| Layer | Technology |
-|--------|------------|
-| Frontend | React + Tailwind CSS |
+| Category | Technology |
+|----------|------------|
 | Backend | Flask |
 | Database | PostgreSQL |
-| Object Storage | MinIO |
 | ORM | SQLAlchemy |
-| Authentication | JWT |
-| Cache | Redis |
-| Reverse Proxy | Nginx |
-| Containers | Docker & Docker Compose |
-| CI/CD | GitHub Actions |
+| Authentication | Flask-JWT-Extended |
+| Object Storage | MinIO |
+| Containerization | Docker & Docker Compose |
+| Database Migration | Flask-Migrate |
+| Password Hashing | Werkzeug |
+| API Testing | Postman |
 
 ---
 
-# 📁 Project Structure
+# 📂 Project Structure
 
-```
-CloudBox/
+```text
+backend/
 │
-├── backend/
-│   ├── app/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── config.py
-│   │   └── models.py
+├── app/
+│   ├── routes/
+│   │   ├── auth.py
+│   │   ├── files.py
+│   │   └── share.py
 │   │
-│   ├── requirements.txt
-│   ├── run.py
-│   ├── Dockerfile
-│   └── .env
+│   ├── services/
+│   │   ├── auth_service.py
+│   │   ├── file_service.py
+│   │   ├── share_service.py
+│   │   └── minio_service.py
+│   │
+│   ├── utils/
+│   │   ├── security.py
+│   │   └── file_utils.py
+│   │
+│   ├── config.py
+│   ├── models.py
+│   └── __init__.py
 │
-├── frontend/
-│
-├── nginx/
-│
-├── docker-compose.yml
-├── README.md
-└── .gitignore
+├── migrations/
+├── tests/
+├── run.py
+├── requirements.txt
+└── docker-compose.yml
 ```
+
+> 🔄 Planned architecture refactor: split models, extensions, and environment-based configuration.
+
+---
+
+# 📌 API Endpoints
+
+## Authentication
+
+| Method | Endpoint |
+|---------|----------|
+| POST | `/api/auth/register` |
+| POST | `/api/auth/login` |
+
+---
+
+## Files
+
+| Method | Endpoint |
+|---------|----------|
+| POST | `/api/files/upload` |
+| GET | `/api/files/` |
+| GET | `/api/files/download/<id>` |
+| PATCH | `/api/files/<id>` |
+| DELETE | `/api/files/<id>` |
+| GET | `/api/files/?search=<query>` |
+| GET | `/api/files/stats` |
+
+---
+
+## Share
+
+| Method | Endpoint |
+|---------|----------|
+| POST | `/api/share/<file_id>` |
+| GET | `/api/share/<token>` |
 
 ---
 
 # 🚀 Getting Started
 
-## Clone the Repository
+## Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/CloudBox.git
+git clone https://github.com/ronitmishra2/CloudBox.git
 cd CloudBox
 ```
 
@@ -112,15 +153,13 @@ cd CloudBox
 python -m venv venv
 ```
 
-Activate it
-
-### Windows
+Windows
 
 ```bash
 venv\Scripts\activate
 ```
 
-### Linux / macOS
+Linux/macOS
 
 ```bash
 source venv/bin/activate
@@ -131,51 +170,52 @@ source venv/bin/activate
 ## Install Dependencies
 
 ```bash
-cd backend
 pip install -r requirements.txt
 ```
 
 ---
 
-## Configure Environment Variables
+## Configure Environment
 
-Create a `.env` file inside the `backend` directory.
-
-Example:
+Create a `.env` file:
 
 ```env
 SECRET_KEY=your-secret-key
+JWT_SECRET_KEY=your-jwt-secret
 
 DATABASE_URL=postgresql://postgres:password@localhost:5432/cloudbox
+
+MINIO_ENDPOINT=localhost:9000
+MINIO_ACCESS_KEY=admin
+MINIO_SECRET_KEY=password123
+MINIO_BUCKET=cloudbox
 ```
 
 ---
 
-## Start PostgreSQL
-
-From the project root:
+## Start Docker Services
 
 ```bash
 docker compose up -d
 ```
 
-Verify:
+---
+
+## Run Database Migration
 
 ```bash
-docker ps
+flask db upgrade
 ```
 
 ---
 
-## Run the Backend
+## Start Backend
 
 ```bash
-cd backend
-
 python run.py
 ```
 
-Backend will be available at
+Backend runs at:
 
 ```
 http://127.0.0.1:5000
@@ -183,78 +223,58 @@ http://127.0.0.1:5000
 
 ---
 
-# 📅 Development Progress
+# 📈 Current Progress
 
-## ✅ Completed
+- ✅ Authentication
+- ✅ PostgreSQL Integration
+- ✅ MinIO Integration
+- ✅ File Upload
+- ✅ File Download
+- ✅ File Delete
+- ✅ File Rename
+- ✅ File Search
+- ✅ Dashboard Statistics
+- ✅ Shareable Links
 
-- Project structure
-- Flask Application Factory
-- Configuration Management
-- Environment Variables
-- SQLAlchemy Integration
-- User Database Model
-- Docker Compose (PostgreSQL)
-- PostgreSQL Container Setup
+### 🚧 In Progress
 
-## 🚧 In Progress
-
-- Flask-Migrate
-- Database Migrations
-- JWT Authentication
-
-## 📌 Upcoming
-
-- User Registration
-- Login System
-- MinIO Integration
-- File Upload API
-- File Download API
-- Sharing Links
+- Clean Architecture Refactor
 - React Frontend
-- Redis Caching
-- Dockerized Backend
+
+### 📅 Planned
+
+- Folder Management
+- Password Protected Share Links
+- Expiring Links
+- Drag & Drop Upload
 - Nginx Reverse Proxy
 - GitHub Actions CI/CD
+- AWS EC2 Deployment
 
 ---
 
-# 🎯 Learning Goals
+# 📷 Screenshots
 
-This project is built to explore and demonstrate:
-
-- Flask Backend Development
-- REST API Design
-- Authentication & Authorization
-- SQLAlchemy ORM
-- PostgreSQL
-- Object Storage Concepts
-- Docker & Docker Compose
-- DevOps Best Practices
-- Scalable Project Architecture
+> Screenshots will be added after the React frontend is completed.
 
 ---
 
 # 🤝 Contributing
 
-Contributions, suggestions, and improvements are welcome.
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Open a Pull Request
+Contributions, issues, and feature requests are welcome.
 
 ---
 
-# 📜 License
+# 📄 License
 
-This project is licensed under the MIT License.
+MIT License
 
 ---
 
-## 👨‍💻 Author
+# 👨‍💻 Author
 
 **Ronit Mishra**
 
 B.Tech Computer Science (Cloud Computing)
 
-Building CloudBox to learn backend engineering, cloud technologies, and DevOps while following production-grade software development practices.
+GitHub: https://github.com/ronitmishra2
